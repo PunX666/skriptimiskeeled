@@ -1,0 +1,59 @@
+#!/bin/bash
+
+if (dpkg -s samba)
+ then
+    echo "Samba on juba installitud, see on armas =)"
+ else
+    sudo apt-get --assume-yes install samba #meelega on sudo scriptis, juhuks kui keegi kolmas püüab midagi teha kuid tal puudub vastav pädevus.
+    echo "Kle, installisin sulle selle samba asja kiirelt, ää pahanda."
+fi
+
+if ([ -d $1 ])
+  then
+    echo "kaust on juba olemas, Palju õnne!"
+  else
+    mkdir -p -v $1
+    echo "loome kausta juba siis"
+fi
+
+if (getent group $2)
+  then
+    echo "See kasutajagrupp olemas!"
+  else
+    sudo groupadd $2
+    echo "gruppi vaja, KOHE!"
+fi
+
+if( [ -r /etc/samba/smb.conf ])
+  then
+    sudo cp /etc/samba/smb.conf /etc/samba/smb1.conf
+    sudo chmod 777 /etc/samba/smb1.conf #suur suur, security hole!!!
+    #Lisa read (append) smb1.conf
+if([ -z $3 ])
+  then
+    echo "[jaga $RANDOM]" >> /etc/samba/smb1.conf
+  else
+
+    echo "[$3]" >> /etc/samba/smb1.conf
+fi
+DATE=`date +%Y-%m-%d:%H:%M:%S`
+    echo "comment= Loodud $DATE" >> /etc/samba/smb1.conf
+    echo "path=$1" >> /etc/samba/smb1.conf
+    echo "writable=yes" >> /etc/samba/smb1.conf
+    echo "valid users=@$2" >> /etc/samba/smb1.conf
+    echo "force group=$2" >> /etc/samba/smb1.conf
+    echo "browsable=yes" >> /etc/samba/smb1.conf
+    echo "create mask=0664" >> /etc/samba/smb1.conf
+    echo "directory mask=0775" >> /etc/samba/smb1.conf
+  else
+    echo "meil pole vist ikka sambat? =("
+fi
+if(testparm -s /etc/samba/smb1.conf)
+  then
+    sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.old
+    sudo cp /etc/samba/smb1.conf /etc/samba/smb.conf
+    sudo /etc/init.d/smbd reload
+    echo "kle, läks hästi vist seekord!"
+  else
+    echo "Asi on mäda, kutsu ruttu ADMIN!"
+fi
