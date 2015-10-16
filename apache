@@ -1,0 +1,16 @@
+#!/bin/bash
+#kontrollima kas sisend on olemas
+if ([ -z $1 ])
+then
+   a = $1
+echo $a
+fi
+
+if (dpkg -s apache2) #kontrollime kas apache on või ei ole, kui pole siis installime, Ütleme kasutajale ikka ka. 
+ then 
+    echo "Veebiserver on juba installitud, see on armas =)" 
+ else 
+    #apt-get --assume-yes install apache2 #meelega on sudo scriptis, juhuks kui keegi kolmas püüab midagi teha kuid tal puudub vastav pädevus. 
+    echo "Kle, installisin sulle selle samba asja kiirelt, ää pahanda." 
+fi 
+
